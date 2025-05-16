@@ -9,10 +9,9 @@ load_dotenv()
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": [
-    "https://dreamsynth-frontend.vercel.app",
-    "https://dreamsynth-frontend-mxti2tdav-williams-projects-f6139b30.vercel.app"
+    "https://will11521.github.io",
+    "https://will11521.github.io/dreamsynth-frontend"
 ]}})
-
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
 @app.route("/", methods=["GET"])
