@@ -4,12 +4,12 @@ import os
 import requests
 from dotenv import load_dotenv
 
-# Load environment variables
+# Load environment variables from .env
 load_dotenv()
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": [
-    "https://will11521.github.io", 
+    "https://will11521.github.io",
     "https://will11521.github.io/dreamsynth-frontend"
 ]}})
 
@@ -50,8 +50,8 @@ def generate_dream():
         dream = result["choices"][0]["message"]["content"].strip()
         return jsonify({"dream": dream})
     except Exception as e:
-        print("❌ Error:", str(e))  # Render logs
-        return jsonify({"error": f"Request failed: {str(e)}"}), 500
+        print("❌ Error:", str(e))
+        return jsonify({"error": "Request failed: " + str(e)}), 500
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
