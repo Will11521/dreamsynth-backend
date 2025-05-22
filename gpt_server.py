@@ -2,6 +2,8 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
 import requests
+import json
+from datetime import datetime
 from dotenv import load_dotenv
 
 # Load environment variables from .env
@@ -52,6 +54,55 @@ def generate_dream():
     except Exception as e:
         print("❌ Error:", str(e))
         return jsonify({"error": "Request failed: " + str(e)}), 500
+
+# === New: Store user-submitted dreams ===
+
+DREAMS_FILE = "dreams.json"
+
+@app.route("/submit_dream", methods=["POST"])
+def submit_dream():
+    data = request.get_json()
+    title = data.get("title", "").strip()
+    mood = data.get("mood", "").strip()
+    content = data.get("content", "").strip()
+
+    if not title or not mood or not content:
+        return jsonify({"error": "Missing fields"}), 400
+
+    new_dream = {
+        "title": title,
+        "mood": mood,
+        "content": content,
+        "timestamp": datetime.utcnow().isoformat()
+    }
+
+    try:
+        if os.path.exists(DREAMS_FILE):
+            with open(DREAMS_FILE, "r") as file:
+                dreams = json.load(file)
+        else:
+            dreams = []
+
+        dreams.insert(0, new_dream)
+
+        with open(DREAMS_FILE, "w") as file:
+            json.dump(dreams, file, indent=2)
+
+        return jsonify({"message": "Dream saved!"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/dreams", methods=["GET"])
+def get_dreams():
+    try:
+        if os.path.exists(DREAMS_FILE):
+            with open(DREAMS_FILE, "r") as file:
+                dreams = json.load(file)
+        else:
+            dreams = []
+        return jsonify({"dreams": dreams})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
